@@ -1,7 +1,7 @@
 ---
 title: "Lab 07 - University of Edinburgh Art Collection"
-author: "Insert your name here"
-date: "Insert date here"
+author: "Elayna Seago"
+date: "3/8/22"
 output: github_document
 ---
 
