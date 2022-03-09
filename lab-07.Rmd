@@ -10,31 +10,107 @@ output: github_document
 ```{r load-packages, message = FALSE}
 library(tidyverse) 
 library(skimr)
+library(stringr)
 ```
 
-```{r load-data, message = FALSE, eval = FALSE}
+```{r load-data, message = FALSE, eval = TRUE}
 # Remove eval = FALSE or set it to TRUE once data is ready to be loaded
 uoe_art <- read_csv("data/uoe-art.csv")
 ```
 
-### Exercise 9
-
+### Exercise 10
+There were 3 warnings: 1) that additional info was discarded, 2) that missing info was filled with "NA", and 3) that NAs were introduced in a numeric variable. We are okay with all of these errors because 1) we only want year data so extra date info can be discarded, 2) if the year is not present, we should denote it as being NA, 3) we know NA is not a number
 ```{r separate-title-date, error = TRUE}
 uoe_art <- uoe_art %>%
   separate(title, into = c("title", "date"), sep = "\\(") %>%
   mutate(year = str_remove(date, "\\)") %>% as.numeric()) %>%
-  select(title, artist, year, ___)
+  select(title, artist, year, date)
 ```
 
-### Exercise 10
-
-Remove this text, and add your answer for Exercise 10 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
-
 ### Exercise 11
+###artist info missing = 113
+###year info missing = 1369 
+```{r}
+skim(uoe_art)
+```
 
-...
 
-Add exercise headings as needed.
+### Exercise 12
+
+### yes, I see something out of the ordinary. One piece has a date of ~zero
+
+```{r}
+uoe_art %>% 
+  ggplot(aes(x = year))+
+  geom_histogram()
+  #coord_cartesian(xlim = c(1750 , 2022))
+```
+
+
+### Exercise 13 
+###death mask is dated as year 2, however, it should be 1964. There are two numbers in parentheses, the first of which is (2)
+```{r}
+uoe_art %>% 
+  arrange(year)
+```
+
+
+### Exercise 13b
+
+```{r}
+uoe_art_edit <- uoe_art %>% 
+  mutate(
+    year = if_else(
+      year == "2" , "1964" ,
+      if_else(year != "2" , paste0(year), "NA"
+    ))) %>% 
+  mutate(year = as.numeric(year))
+
+```
+
+
+
+```{r}
+uoe_art_edit %>% 
+  arrange(year)
+```
+
+
+```{r}
+uoe_art_edit %>% 
+  ggplot(aes(x = year))+
+  geom_histogram()
+  #coord_cartesian(xlim = c(1750 , 2022))
+```
+
+
+### Exercise 14
+
+The most prolific artist is "unknown." (jk). The author with the most pieces is Emma Gillies. I do not know of her, but I looked her up and she is a Scottish potter who lived near Edinburgh, so proximity may explain why they have so much of her work. 
+
+```{r}
+uoe_art_edit %>% 
+  ggplot(aes(x = artist))+
+  geom_bar()
+```
+
+
+```{r}
+uoe_art_edit %>% 
+  count(artist) %>% 
+  arrange(desc(n))
+```
+
+### Exercise 15
+### 10 pieces have the word child in their title
+```{r}
+uoe_art_edit %>% 
+  filter(
+    str_detect(title , "child") |
+      str_detect(title , "Child")
+  )
+```
+
+
+
+
